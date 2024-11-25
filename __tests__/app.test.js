@@ -14,57 +14,47 @@ afterAll(() => {
 });
 
 describe("GET /api", () => {
-  test("200: Responds with an object detailing the documentation for each endpoint", () => {
-    return request(app)
-      .get("/api")
-      .expect(200)
-      .then(({ body: { endpoints } }) => {
-        expect(endpoints).toEqual(endpointsJson);
-      });
+  test("200: Responds with an object detailing the documentation for each endpoint", async () => {
+    const {
+      body: { endpoints },
+    } = await request(app).get("/api").expect(200);
+    expect(endpoints).toEqual(endpointsJson);
   });
-  test("200: Responds with a JSON object", () => {
-    return request(app)
+  test("200: Responds with a JSON object", async () => {
+    await request(app)
       .get("/api")
       .expect(200)
       .expect("Content-Type", /application\/json/);
   });
 });
-test("404: Responds with an error message for non-existent route", () => {
-  return request(app)
+test("404: Responds with an error message for non-existent route", async () => {
+  const { body } = await request(app)
     .get("/api/non-existent-route")
-    .expect(404)
-    .then(({ body }) => {
-      expect(body).toEqual({ msg: "Route not found" });
-    });
+    .expect(404);
+  expect(body).toEqual({ msg: "Route not found" });
 });
 describe("Get api/topics", () => {
-  test("200: Responds with an array of topic objects, each with slug & description properties", () => {
-    return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body: { topics } }) => {
-        expect(topics).toEqual(testData.topicData);
-      });
+  test("200: Responds with an array of topic objects, each with slug & description properties", async () => {
+    const {
+      body: { topics },
+    } = await request(app).get("/api/topics").expect(200);
+    expect(topics).toEqual(testData.topicData);
   });
-  test("200: Topics have the correct data types", () => {
-    return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body: { topics } }) => {
-        topics.forEach(topic => {
-          expect(typeof topic.slug).toBe("string");
-          expect(typeof topic.description).toBe("string");
-        });
-      });
+  test("200: Topics have the correct data types", async () => {
+    const {
+      body: { topics },
+    } = await request(app).get("/api/topics").expect(200);
+    topics.forEach(topic => {
+      expect(typeof topic.slug).toBe("string");
+      expect(typeof topic.description).toBe("string");
+    });
   });
-  test("200: Topics only contain 'slug' and 'description'", () => {
-    return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body: { topics } }) => {
-        topics.forEach(topic => {
-          expect(Object.keys(topic)).toEqual(["slug", "description"]);
-        });
-      });
+  test("200: Topics only contain 'slug' and 'description'", async () => {
+    const {
+      body: { topics },
+    } = await request(app).get("/api/topics").expect(200);
+    topics.forEach(topic => {
+      expect(Object.keys(topic)).toEqual(["slug", "description"]);
+    });
   });
 });
