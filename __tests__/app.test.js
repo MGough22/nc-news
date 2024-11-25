@@ -37,3 +37,34 @@ test("404: Responds with an error message for non-existent route", () => {
       expect(body).toEqual({ msg: "Route not found" });
     });
 });
+describe("Get api/topics", () => {
+  test("200: Responds with an array of topic objects, each with slug & description properties", () => {
+    return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then(({ body: { topics } }) => {
+        expect(topics).toEqual(testData.topicData);
+      });
+  });
+  test("200: Topics have the correct data types", () => {
+    return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then(({ body: { topics } }) => {
+        topics.forEach(topic => {
+          expect(typeof topic.slug).toBe("string");
+          expect(typeof topic.description).toBe("string");
+        });
+      });
+  });
+  test("200: Topics only contain 'slug' and 'description'", () => {
+    return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then(({ body: { topics } }) => {
+        topics.forEach(topic => {
+          expect(Object.keys(topic)).toEqual(["slug", "description"]);
+        });
+      });
+  });
+});
