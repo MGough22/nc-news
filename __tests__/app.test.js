@@ -58,3 +58,26 @@ describe("Get api/topics", () => {
     });
   });
 });
+describe("Get /api/articles/:article_id", () => {
+  test("Returns the unique article object corresponidng to the given id with expected properties", async () => {
+    for (let i = 1; i <= testData.articleData.length; i++) {
+      const {
+        body: { article },
+      } = await request(app).get(`/api/articles/${i}`).expect(200);
+      expect(article).not.toBeNull();
+      expect(article.constructor).toBe(Object);
+      expect(article.article_id).toBe(i);
+      const expectedKeys = [
+        "article_id",
+        "title",
+        "topic",
+        "author",
+        "body",
+        "created_at",
+        "votes",
+        "article_img_url",
+      ];
+      expect(Object.keys(article)).toEqual(expectedKeys);
+    }
+  });
+});
