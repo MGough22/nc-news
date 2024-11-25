@@ -80,4 +80,14 @@ describe("Get /api/articles/:article_id", () => {
       expect(Object.keys(article)).toEqual(expectedKeys);
     }
   });
+  test("400: Responds with an error message when given a non-numeric article_id", async () => {
+    const { body } = await request(app)
+      .get("/api/articles/invalid")
+      .expect(400);
+    expect(body).toEqual({ msg: "Invalid article_id" });
+  });
+  test("404: Responds with an error message when the article_id does not exist", async () => {
+    const { body } = await request(app).get("/api/articles/9999").expect(404);
+    expect(body).toEqual({ msg: "Article not found" });
+  });
 });
