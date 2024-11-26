@@ -225,3 +225,43 @@ describe("POST /api/articles/:article_id/comments", () => {
     expect(body).toEqual({ msg: "Article not found" });
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  test(`200: Updates an article's votes by a given increment, 
+    and responds with the updated article object`, async () => {
+    const testIncrements = [
+      { inc_votes: 1 },
+      { inc_votes: 100 },
+      { inc_votes: -101 },
+    ];
+    const testArticleIds = [1, 5, 8];
+    for (const testArticleId of testArticleIds) {
+      let startVote = testData.articleData[testArticleId - 1].votes || 0;
+      for (const testInc of testIncrements) {
+        const {
+          body: { updatedArticle },
+        } = await request(app)
+          .patch(`/api/articles/${testArticleId}`)
+          .send(testInc)
+          .expect(200);
+        expect(updatedArticle).toEqual(
+          expect.objectContaining({
+            article_id: testArticleId,
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            article_img_url: expect.any(String),
+            votes: startVote + testInc.inc_votes,
+          })
+        );
+        const {
+          body: { article },
+        } = await request(app).get(`/api/articles/${testArticleId}`);
+        expect(updatedArticle).toEqual(article);
+        startVote += testInc.inc_votes;
+      }
+    }
+  });
+});

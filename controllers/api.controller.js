@@ -5,6 +5,7 @@ const {
   fetchAllArticles,
   fetchCommentsByArtId,
   addCommentToArticle,
+  updateVoteByArticle,
 } = require("../models/api.model");
 exports.getApi = (req, res) => {
   return res.status(200).send({ endpoints: endpointsJson });
@@ -77,6 +78,16 @@ exports.postCommentByArticle = async (req, res, next) => {
     }
     const comment = await addCommentToArticle(req.body, articleId);
     res.status(201).send({ comment });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.patchVoteByArticle = async (req, res, next) => {
+  try {
+    const { article_id: articleId } = req.params;
+    const updatedArticle = await updateVoteByArticle(req.body, articleId);
+    res.status(200).send({ updatedArticle });
   } catch (err) {
     next(err);
   }
