@@ -43,6 +43,20 @@ exports.fetchCommentsByArtId = async id => {
   }
 };
 
+exports.fetchCommentsByComId = async id => {
+  try {
+    const { rows } = await db.query(
+      `
+          SELECT * FROM comments WHERE comment_id = $1
+        `,
+      [id]
+    );
+    return rows[0];
+  } catch (err) {
+    throw new Error("Failed to fetch comment");
+  }
+};
+
 exports.addCommentToArticle = async (comment, id) => {
   try {
     const { rows } = await db.query(
@@ -73,5 +87,19 @@ exports.updateVoteByArticle = async (voteObject, id) => {
     return rows[0];
   } catch (err) {
     throw new Error("Failed to update votes");
+  }
+};
+
+exports.deleteCommentById = async id => {
+  try {
+    await db.query(
+      `
+      DELETE FROM comments
+      WHERE comment_id = $1;
+      `,
+      [id]
+    );
+  } catch (err) {
+    throw new Error("Failed to delete comment");
   }
 };

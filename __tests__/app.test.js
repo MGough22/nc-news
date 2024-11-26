@@ -303,3 +303,27 @@ describe("PATCH /api/articles/:article_id", () => {
     expect(body).toEqual({ msg: "Article not found" });
   });
 });
+
+describe("DELETE /api/comments/:comment_id.", () => {
+  test("204: Deletes specified comment from db", async () => {
+    await request(app).delete(`/api/comments/6`).expect(204);
+    const { rows } = await db.query(
+      `
+        SELECT * FROM comments WHERE comment_id = 6;
+      `
+    );
+    expect(rows).toEqual([]);
+  });
+  test("400: Responds with an error message if comment_id is not a number,", async () => {
+    const { body } = await request(app)
+      .delete(`/api/comments/jeremiah`)
+      .expect(400);
+    expect(body).toEqual({ msg: "Invalid comment_id" });
+  });
+  test("404: Responds with an error message if specified comment does not exist,", async () => {
+    const { body } = await request(app)
+      .delete(`/api/comments/314159`)
+      .expect(404);
+    expect(body).toEqual({ msg: "Comment not found" });
+  });
+});
