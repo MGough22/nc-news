@@ -264,4 +264,42 @@ describe("PATCH /api/articles/:article_id", () => {
       }
     }
   });
+  test(`400: Responds with an error message if request body is missing fields or incorrectly formatted`, async () => {
+    const testInc1 = { inc_votes: "blue" };
+    const { body: body1 } = await request(app)
+      .patch(`/api/articles/1`)
+      .send(testInc1)
+      .expect(400);
+    expect(body1).toEqual({ msg: "Bad request: missing required fields" });
+
+    const testInc2 = { jinx: 25 };
+    const { body: body2 } = await request(app)
+      .patch(`/api/articles/1`)
+      .send(testInc2)
+      .expect(400);
+    expect(body2).toEqual({ msg: "Bad request: missing required fields" });
+
+    const testInc3 = {};
+    const { body: body3 } = await request(app)
+      .patch(`/api/articles/1`)
+      .send(testInc3)
+      .expect(400);
+    expect(body3).toEqual({ msg: "Bad request: missing required fields" });
+  });
+  test(`400: Responds with an error message if article_id is not a number`, async () => {
+    const testInc = { inc_votes: 1 };
+    const { body } = await request(app)
+      .patch(`/api/articles/poseidon`)
+      .send(testInc)
+      .expect(400);
+    expect(body).toEqual({ msg: "Invalid article_id" });
+  });
+  test(`404: Responds with an error message if article_id does not exist`, async () => {
+    const testInc = { inc_votes: 1 };
+    const { body } = await request(app)
+      .patch(`/api/articles/9876`)
+      .send(testInc)
+      .expect(404);
+    expect(body).toEqual({ msg: "Article not found" });
+  });
 });

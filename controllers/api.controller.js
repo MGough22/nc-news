@@ -86,6 +86,18 @@ exports.postCommentByArticle = async (req, res, next) => {
 exports.patchVoteByArticle = async (req, res, next) => {
   try {
     const { article_id: articleId } = req.params;
+    if (isNaN(articleId)) {
+      return res.status(400).send({ msg: "Invalid article_id" });
+    }
+    if (!(await fetchArticleById(articleId))) {
+      return res.status(404).send({ msg: "Article not found" });
+    }
+    const { inc_votes: incVotes } = req.body || {};
+    if (!incVotes || typeof incVotes != "number") {
+      return res
+        .status(400)
+        .send({ msg: "Bad request: missing required fields" });
+    }
     const updatedArticle = await updateVoteByArticle(req.body, articleId);
     res.status(200).send({ updatedArticle });
   } catch (err) {
