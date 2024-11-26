@@ -93,10 +93,11 @@ describe("Get /api/articles/:article_id", () => {
 });
 describe("Get /api/articles", () => {
   test("200: returns all article objects in an array with the expected properties only", async () => {
-    const { body } = await request(app).get("/api/articles").expect(200);
-    expect(Array.isArray(body)).toBe(true);
-    expect(body.length).toBe(testData.articleData.length);
-    body.forEach(article => {
+    const {
+      body: { articles },
+    } = await request(app).get("/api/articles").expect(200);
+    expect(articles.length).toBe(testData.articleData.length);
+    articles.forEach(article => {
       expect(article).toEqual(
         expect.objectContaining({
           article_id: expect.any(Number),
@@ -112,8 +113,10 @@ describe("Get /api/articles", () => {
     });
   });
   test("article objects are served sorted by date in descending order", async () => {
-    const { body } = await request(app).get("/api/articles").expect(200);
-    expect(body).toBeSortedBy("created_at", {
+    const {
+      body: { articles },
+    } = await request(app).get("/api/articles").expect(200);
+    expect(articles).toBeSortedBy("created_at", {
       descending: true,
     });
   });
@@ -123,15 +126,15 @@ describe("Get /api/articles/:article_id/comments", () => {
     an empty array if none are associated, and ordered by date descending`, async () => {
     const articlesWithComments = [1, 3, 5, 6, 9];
     for (let i = 1; i <= testData.articleData.length; i++) {
-      const { body } = await request(app)
-        .get(`/api/articles/${i}/comments`)
-        .expect(200);
-      expect(Array.isArray(body)).toBe(true);
+      const {
+        body: { comments },
+      } = await request(app).get(`/api/articles/${i}/comments`).expect(200);
+      expect(Array.isArray(comments)).toBe(true);
       if (!articlesWithComments.includes(i)) {
-        expect(body).toEqual([]);
+        expect(comments).toEqual([]);
       } else {
-        expect(body.length).toBeGreaterThanOrEqual(1);
-        body.forEach(comment => {
+        expect(comments.length).toBeGreaterThanOrEqual(1);
+        comments.forEach(comment => {
           expect(comment).toEqual(
             expect.objectContaining({
               article_id: i,
@@ -143,7 +146,7 @@ describe("Get /api/articles/:article_id/comments", () => {
             })
           );
         });
-        expect(body).toBeSortedBy("created_at", {
+        expect(comments).toBeSortedBy("created_at", {
           descending: true,
         });
       }

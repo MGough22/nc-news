@@ -37,7 +37,7 @@ exports.getTopics = async (req, res, next) => {
 exports.getAllArticles = async (req, res, next) => {
   try {
     const articles = await fetchAllArticles();
-    res.status(200).send(articles);
+    res.status(200).send({ articles });
   } catch (err) {
     next(err);
   }
@@ -53,7 +53,7 @@ exports.getCommentsByArticleId = async (req, res, next) => {
       return res.status(404).send({ msg: "Article not found" });
     }
     const comments = await fetchCommentsByArtId(articleId);
-    res.status(200).send(comments);
+    res.status(200).send({ comments });
   } catch (err) {
     next(err);
   }
