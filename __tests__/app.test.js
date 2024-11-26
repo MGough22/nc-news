@@ -59,7 +59,7 @@ describe("Get api/topics", () => {
   });
 });
 describe("Get /api/articles/:article_id", () => {
-  test("Returns the unique article object corresponidng to the given id with expected properties", async () => {
+  test("200: Returns the unique article object corresponidng to the given id with expected properties", async () => {
     for (let i = 1; i <= testData.articleData.length; i++) {
       const {
         body: { article },
@@ -89,5 +89,32 @@ describe("Get /api/articles/:article_id", () => {
   test("404: Responds with an error message when the article_id does not exist", async () => {
     const { body } = await request(app).get("/api/articles/9999").expect(404);
     expect(body).toEqual({ msg: "Article not found" });
+  });
+});
+describe("Get /api/articles", () => {
+  test("200: returns all article objects in an array with the expected properties only", async () => {
+    const { body } = await request(app).get("/api/articles").expect(200);
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(testData.articleData.length);
+    body.forEach(article => {
+      expect(article).toEqual(
+        expect.objectContaining({
+          article_id: expect.any(Number),
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
+        })
+      );
+    });
+  });
+  test("article objects are served sorted by date in descending order", async () => {
+    const { body } = await request(app).get("/api/articles").expect(200);
+    expect(body).toBeSortedBy("created_at", {
+      descending: true,
+    });
   });
 });
