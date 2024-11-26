@@ -58,3 +58,20 @@ exports.addCommentToArticle = async (comment, id) => {
     throw new Error("Failed to add comment");
   }
 };
+
+exports.updateVoteByArticle = async (voteObject, id) => {
+  try {
+    const { rows } = await db.query(
+      `
+        UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING *;
+      `,
+      [voteObject.inc_votes, id]
+    );
+    return rows[0];
+  } catch (err) {
+    throw new Error("Failed to update votes");
+  }
+};
