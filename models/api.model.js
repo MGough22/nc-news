@@ -27,3 +27,18 @@ exports.fetchAllArticles = async () => {
     throw new Error("Failed to fetch articles");
   }
 };
+
+exports.fetchCommentsByArtId = async id => {
+  try {
+    const { rows } = await db.query(
+      `
+        SELECT * FROM comments WHERE article_id = $1
+        ORDER BY comments.created_at DESC;
+      `,
+      [id]
+    );
+    return rows;
+  } catch (err) {
+    throw new Error("Failed to fetch comments");
+  }
+};
