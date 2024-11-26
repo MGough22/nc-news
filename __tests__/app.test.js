@@ -118,3 +118,47 @@ describe("Get /api/articles", () => {
     });
   });
 });
+describe("Get /api/articles/:article_id/comments", () => {
+  test(`200: responds with an array of the commment objects for the specified article_id exclusivvely, 
+    an empty array if none are associated, and ordered by date descending`, async () => {
+    const articlesWithComments = [1, 3, 5, 6, 9];
+    for (let i = 1; i <= testData.articleData.length; i++) {
+      const { body } = await request(app)
+        .get(`/api/articles/${i}/comments`)
+        .expect(200);
+      expect(Array.isArray(body)).toBe(true);
+      if (!articlesWithComments.includes(i)) {
+        expect(body).toEqual([]);
+      } else {
+        expect(body.length).toBeGreaterThanOrEqual(1);
+        body.forEach(comment => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              article_id: i,
+              body: expect.any(String),
+              comment_id: expect.any(Number),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+        expect(body).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      }
+    }
+  });
+  test("400: Responds with an error message when given a non-numeric article_id", async () => {
+    const { body } = await request(app)
+      .get("/api/articles/invalid/comments")
+      .expect(400);
+    expect(body).toEqual({ msg: "Invalid article_id" });
+  });
+  test("404: Responds with an error message when the article_id does not exist", async () => {
+    const { body } = await request(app)
+      .get("/api/articles/98765/comments")
+      .expect(404);
+    expect(body).toEqual({ msg: "Article not found" });
+  });
+});
