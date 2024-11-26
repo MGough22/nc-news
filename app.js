@@ -7,6 +7,7 @@ const {
   getCommentsByArticleId,
   postCommentByArticle,
   patchVoteByArticle,
+  deleteComment,
 } = require("./controllers/api.controller");
 const app = express();
 
@@ -25,6 +26,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticle);
 
 app.patch("/api/articles/:article_id", patchVoteByArticle);
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.use((req, res, next) => {
   res.status(404).send({ msg: "Route not found" });

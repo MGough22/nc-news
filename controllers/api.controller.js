@@ -6,6 +6,8 @@ const {
   fetchCommentsByArtId,
   addCommentToArticle,
   updateVoteByArticle,
+  deleteCommentById,
+  fetchCommentsByComId,
 } = require("../models/api.model");
 exports.getApi = (req, res) => {
   return res.status(200).send({ endpoints: endpointsJson });
@@ -100,6 +102,22 @@ exports.patchVoteByArticle = async (req, res, next) => {
     }
     const updatedArticle = await updateVoteByArticle(req.body, articleId);
     res.status(200).send({ updatedArticle });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteComment = async (req, res, next) => {
+  try {
+    const { comment_id: commentId } = req.params;
+    if (isNaN(commentId)) {
+      return res.status(400).send({ msg: "Invalid comment_id" });
+    }
+    if (!(await fetchCommentsByComId(commentId))) {
+      return res.status(404).send({ msg: "Comment not found" });
+    }
+    await deleteCommentById(commentId);
+    return res.status(204).send();
   } catch (err) {
     next(err);
   }
