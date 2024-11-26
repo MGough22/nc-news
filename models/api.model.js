@@ -14,21 +14,16 @@ exports.fetchArticleById = async id => {
 };
 
 exports.fetchAllArticles = async () => {
-  const { rows } = await db.query("SELECT * FROM articles;");
-  const result = rows
-    .map(({ body, ...rest }) => rest)
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  const countVotes = async id => {
-    const { rows } = await db.query(
-      "SELECT SUM(votes) FROM comments WHERE article_id = $1;",
-      [id]
-    );
-    return rows[0].sum || 0;
-  };
-  await Promise.all(
-    result.map(async el => {
-      el.comment_count = Number(await countVotes(el.article_id));
-    })
-  );
-  return result;
+  try {
+    const { rows: articles } = await db.query(`
+        SELECT articles.*, COALESCE(SUM(comments.votes), 0)::INTEGER AS comment_count
+        FROM articles
+        LEFT JOIN comments ON articles.article_id = comments.article_id
+        GROUP BY articles.article_id
+        ORDER BY articles.created_at DESC;
+      `);
+    return articles.map(({ body, ...rest }) => rest);
+  } catch (err) {
+    throw new Error("Failed to fetch articles");
+  }
 };

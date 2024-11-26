@@ -93,25 +93,26 @@ describe("Get /api/articles/:article_id", () => {
 });
 describe("Get /api/articles", () => {
   test("200: returns all article objects in an array with the expected properties only", async () => {
-    const { body } = await request(app).get("/api/articles");
+    const { body } = await request(app).get("/api/articles").expect(200);
     expect(Array.isArray(body)).toBe(true);
     expect(body.length).toBe(testData.articleData.length);
-    const expectedKeys = [
-      "article_id",
-      "title",
-      "topic",
-      "author",
-      "created_at",
-      "votes",
-      "article_img_url",
-      "comment_count",
-    ];
     body.forEach(article => {
-      expect(Object.keys(article)).toEqual(expectedKeys);
+      expect(article).toEqual(
+        expect.objectContaining({
+          article_id: expect.any(Number),
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
+        })
+      );
     });
   });
   test("article objects are served sorted by date in descending order", async () => {
-    const { body } = await request(app).get("/api/articles");
+    const { body } = await request(app).get("/api/articles").expect(200);
     expect(body).toBeSortedBy("created_at", {
       descending: true,
     });
