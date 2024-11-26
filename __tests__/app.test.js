@@ -165,3 +165,63 @@ describe("Get /api/articles/:article_id/comments", () => {
     expect(body).toEqual({ msg: "Article not found" });
   });
 });
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Creates a new comment in the comments table in the expected format, and responds with the created comment object", async () => {
+    const newComment = { username: "butter_bridge", body: "Great article!" };
+    const {
+      body: { comment },
+    } = await request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201);
+    expect(comment).toEqual(
+      expect.objectContaining({
+        comment_id: expect.any(Number),
+        body: "Great article!",
+        article_id: 1,
+        author: "butter_bridge",
+        votes: 0,
+        created_at: expect.any(String),
+      })
+    );
+    const {
+      body: { comments },
+    } = await request(app).get(`/api/articles/1/comments`);
+    expect(comments[0]).toEqual(comment);
+  });
+  test("400: Responds with an error message if required fields are missing", async () => {
+    const newCommentWithoutBody = { username: "butter_bridge" };
+    const { body: body1 } = await request(app)
+      .post("/api/articles/1/comments")
+      .send(newCommentWithoutBody)
+      .expect(400);
+
+    expect(body1).toEqual({ msg: "Bad request: missing required fields" });
+
+    const newCommentWithoutUsername = { body: "something" };
+    const { body: body2 } = await request(app)
+      .post("/api/articles/1/comments")
+      .send(newCommentWithoutUsername)
+      .expect(400);
+
+    expect(body2).toEqual({ msg: "Bad request: missing required fields" });
+
+    const newCommentWithoutAnyProperties = {};
+    const { body: body3 } = await request(app)
+      .post("/api/articles/1/comments")
+      .send(newCommentWithoutAnyProperties)
+      .expect(400);
+
+    expect(body3).toEqual({ msg: "Bad request: missing required fields" });
+  });
+
+  test("404: Responds with an error message if article_id does not exist", async () => {
+    const newComment = { username: "butter_bridge", body: "Great article!" };
+    const { body } = await request(app)
+      .post("/api/articles/98765/comments")
+      .send(newComment)
+      .expect(404);
+
+    expect(body).toEqual({ msg: "Article not found" });
+  });
+});

@@ -42,3 +42,19 @@ exports.fetchCommentsByArtId = async id => {
     throw new Error("Failed to fetch comments");
   }
 };
+
+exports.addCommentToArticle = async (comment, id) => {
+  try {
+    const { rows } = await db.query(
+      `
+          INSERT INTO comments (author, body, article_id) 
+          VALUES ($1, $2, $3)
+          RETURNING *;
+          `,
+      [comment.username, comment.body, id]
+    );
+    return rows[0];
+  } catch (err) {
+    throw new Error("Failed to add comment");
+  }
+};
