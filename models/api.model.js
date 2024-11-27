@@ -103,3 +103,12 @@ exports.deleteCommentById = async id => {
     throw new Error("Failed to delete comment");
   }
 };
+
+exports.fetchUsers = async () => {
+  try {
+    const { rows } = await db.query(`SELECT * FROM users;`);
+    return rows;
+  } catch (err) {
+    throw new Error("Failed to get users");
+  }
+};
