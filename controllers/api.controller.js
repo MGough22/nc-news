@@ -8,6 +8,7 @@ const {
   updateVoteByArticle,
   deleteCommentById,
   fetchCommentsByComId,
+  fetchUsers,
 } = require("../models/api.model");
 exports.getApi = (req, res) => {
   return res.status(200).send({ endpoints: endpointsJson });
@@ -118,6 +119,15 @@ exports.deleteComment = async (req, res, next) => {
     }
     await deleteCommentById(commentId);
     return res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getUsers = async (req, res, next) => {
+  try {
+    const users = await fetchUsers();
+    res.status(200).send({ users });
   } catch (err) {
     next(err);
   }
