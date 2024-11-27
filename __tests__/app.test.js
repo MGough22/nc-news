@@ -334,7 +334,6 @@ describe("GET /api/users", () => {
       body: { users },
     } = await request(app).get("/api/users").expect(200);
     expect(users.length).toBe(testData.userData.length);
-    console.log(users);
     users.forEach(user => {
       expect(user).toEqual(
         expect.objectContaining({
