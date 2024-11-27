@@ -41,7 +41,9 @@ exports.getTopics = async (req, res, next) => {
 
 exports.getAllArticles = async (req, res, next) => {
   try {
-    const articles = await fetchAllArticles();
+    const { sort_by = "created_at", order = "DESC" } = req.query;
+    // example: GET /api/articles?sort_by=date&order=desc
+    const articles = await fetchAllArticles(sort_by, order);
     res.status(200).send({ articles });
   } catch (err) {
     next(err);

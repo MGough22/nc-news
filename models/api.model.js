@@ -13,15 +13,34 @@ exports.fetchArticleById = async id => {
   return rows[0];
 };
 
-exports.fetchAllArticles = async () => {
+exports.fetchAllArticles = async (sortBy, order) => {
   try {
-    const { rows: articles } = await db.query(`
+    const validColumns = [
+      "article_id",
+      "title",
+      "topic",
+      "author",
+      "created_at",
+      "votes",
+      "comment_count",
+      "article_img_url",
+    ];
+    const validOrders = ["ASC", "DESC"];
+    if (
+      !validColumns.includes(sortBy) ||
+      !validOrders.includes(order.toUpperCase())
+    ) {
+      throw new Error("invalid query parameters");
+    }
+    const { rows: articles } = await db.query(
+      `
         SELECT articles.*, COALESCE(SUM(comments.votes), 0)::INTEGER AS comment_count
         FROM articles
         LEFT JOIN comments ON articles.article_id = comments.article_id
         GROUP BY articles.article_id
-        ORDER BY articles.created_at DESC;
-      `);
+        ORDER BY articles.${sortBy} ${order};
+      `
+    );
     return articles.map(({ body, ...rest }) => rest);
   } catch (err) {
     throw new Error("Failed to fetch articles");
