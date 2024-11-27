@@ -38,7 +38,9 @@ exports.fetchAllArticles = async (sortBy, order) => {
         FROM articles
         LEFT JOIN comments ON articles.article_id = comments.article_id
         GROUP BY articles.article_id
-        ORDER BY articles.${sortBy} ${order};
+        ORDER BY ${
+          sortBy === "comment_count" ? "" : "articles."
+        }${sortBy} ${order};
       `
     );
     return articles.map(({ body, ...rest }) => rest);
