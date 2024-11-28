@@ -12,6 +12,12 @@
   "GET /api/articles": {
     "description": "serves an array of all articles, default sorted descending by the value of created_at, taking optional query params",
     "queries": ["author", "topic", "sort_by", "order"],
+    "queries explainer": [
+      "author: filters by author",
+      "topic: filters by topic",
+      "sort_by: the value to order to results by, defaults to created_at",
+      "order: the direction of ordering, asc, or desc, defaults to desc"
+    ],
     "exampleResponse": {
       "articles": [
         {

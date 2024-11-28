@@ -13,9 +13,9 @@ exports.fetchArticleById = async id => {
   return rows[0];
 };
 
-exports.fetchAllArticles = async (sortBy, order) => {
+exports.fetchAllArticles = async (sortBy, order, topic) => {
   try {
-    const { rows: articles } = await db.query(
+    let { rows: articles } = await db.query(
       `
         SELECT articles.*, COALESCE(SUM(comments.votes), 0)::INTEGER AS comment_count
         FROM articles
@@ -26,6 +26,9 @@ exports.fetchAllArticles = async (sortBy, order) => {
         }${sortBy} ${order};
       `
     );
+    if (topic) {
+      articles = articles.filter(el => el.topic === topic);
+    }
     return articles.map(({ body, ...rest }) => rest);
   } catch (err) {
     throw new Error("Failed to fetch articles");

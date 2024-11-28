@@ -41,7 +41,7 @@ exports.getTopics = async (req, res, next) => {
 
 exports.getAllArticles = async (req, res, next) => {
   try {
-    const { sort_by = "created_at", order = "DESC" } = req.query;
+    const { sort_by = "created_at", order = "DESC", topic } = req.query;
     const validColumns = [
       "article_id",
       "title",
@@ -59,7 +59,7 @@ exports.getAllArticles = async (req, res, next) => {
     ) {
       return res.status(400).send({ msg: "Invalid query" });
     }
-    const articles = await fetchAllArticles(sort_by, order);
+    const articles = await fetchAllArticles(sort_by, order, topic);
     res.status(200).send({ articles });
   } catch (err) {
     next(err);

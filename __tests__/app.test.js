@@ -112,6 +112,52 @@ describe("Get /api/articles", () => {
       );
     });
   });
+  test("200: Articles can be served filtered by optional topic query", async () => {
+    const {
+      body: { articles: articles1 },
+    } = await request(app).get("/api/articles?topic=cats").expect(200);
+    expect(articles1.length).toBe(1);
+    articles1.forEach(article => {
+      expect(article).toEqual(
+        expect.objectContaining({
+          article_id: expect.any(Number),
+          title: expect.any(String),
+          topic: "cats",
+          author: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
+        })
+      );
+    });
+    const {
+      body: { articles: articles2 },
+    } = await request(app).get("/api/articles?topic=mitch").expect(200);
+    expect(articles2.length).toBe(12);
+    articles2.forEach(article => {
+      expect(article).toEqual(
+        expect.objectContaining({
+          article_id: expect.any(Number),
+          title: expect.any(String),
+          topic: "mitch",
+          author: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
+        })
+      );
+    });
+  });
+  test("200: Serves empty array for non-extant topic query", async () => {
+    const {
+      body: { articles },
+    } = await request(app)
+      .get("/api/articles?topic=VladimirAshkenazy")
+      .expect(200);
+    expect(articles).toEqual([]);
+  });
   test("200: article objects by default are served sorted by date in descending order", async () => {
     const {
       body: { articles },
