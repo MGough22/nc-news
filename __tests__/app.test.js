@@ -112,13 +112,87 @@ describe("Get /api/articles", () => {
       );
     });
   });
-  test("article objects are served sorted by date in descending order", async () => {
+  test("200: article objects by default are served sorted by date in descending order", async () => {
     const {
       body: { articles },
     } = await request(app).get("/api/articles").expect(200);
     expect(articles).toBeSortedBy("created_at", {
       descending: true,
     });
+  });
+  test("200: article objects can be served sorted by date in ascending order", async () => {
+    const {
+      body: { articles },
+    } = await request(app).get("/api/articles?order=asc").expect(200);
+    expect(articles).toBeSortedBy("created_at", {
+      ascending: true,
+    });
+  });
+  test("200: article objects can be served sorted by any valid column on the article table in the queried order", async () => {
+    const sorts = [
+      "article_id",
+      "title",
+      "topic",
+      "author",
+      "created_at",
+      "votes",
+      "comment_count",
+      "article_img_url",
+    ];
+    for (const sort of sorts) {
+      const {
+        body: { articles: articlesAsc },
+      } = await request(app)
+        .get(`/api/articles?sort_by=${sort}&order=asc`)
+        .expect(200);
+      expect(articlesAsc).toBeSortedBy(sort, {
+        ascending: true,
+      });
+      const {
+        body: { articles: articlesDesc },
+      } = await request(app)
+        .get(`/api/articles?sort_by=${sort}&order=desc`)
+        .expect(200);
+      expect(articlesDesc).toBeSortedBy(sort, {
+        descending: true,
+      });
+    }
+  });
+  test("400: Serves error message if the provided sort_by parameter is invalid", async () => {
+    const invalidSorts = [
+      "gobbledygook",
+      "Sixtus the seventeenth",
+      "evergeen fandangle",
+    ];
+    for (const sort of invalidSorts) {
+      const { body } = await request(app)
+        .get(`/api/articles?sort_by=${sort}&order=asc`)
+        .expect(400);
+      expect(body).toEqual({ msg: "Invalid query" });
+    }
+  });
+  test("400: Serves error message if the provided order parameter is invalid", async () => {
+    const invalidOrders = ["CesareBorgia", "Cantaloupe", {}];
+    for (const order of invalidOrders) {
+      const { body } = await request(app)
+        .get(`/api/articles?sort_by=title&order=${order}`)
+        .expect(400);
+      expect(body).toEqual({ msg: "Invalid query" });
+    }
+  });
+  test("400: Serves error message if both the provided query parameters are invalid", async () => {
+    const invalidQueries = [
+      ["Jessica Chastain", "Empedokles"],
+      ["Secret history of procopius", "C#minor"],
+      ["Brexit", "Hindsight"],
+      [123, 456],
+    ];
+    for (const query of invalidQueries) {
+      const { body } = await request(app)
+        .get(`/api/articles?sort_by=${query[0]}&order=${query[1]}`)
+        .expect(400);
+      expect(body).toEqual({ msg: "Invalid query" });
+    }
   });
 });
 describe("Get /api/articles/:article_id/comments", () => {
