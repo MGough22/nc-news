@@ -172,7 +172,7 @@ describe("Get /api/articles", () => {
       body: { articles },
     } = await request(app).get("/api/articles?order=asc").expect(200);
     expect(articles).toBeSortedBy("created_at", {
-      ascending: true,
+      descending: false,
     });
   });
   test("200: article objects can be served sorted by any valid column on the article table in the queried order", async () => {
@@ -193,7 +193,7 @@ describe("Get /api/articles", () => {
         .get(`/api/articles?sort_by=${sort}&order=asc`)
         .expect(200);
       expect(articlesAsc).toBeSortedBy(sort, {
-        ascending: true,
+        descending: false,
       });
       const {
         body: { articles: articlesDesc },
