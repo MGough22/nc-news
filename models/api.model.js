@@ -15,23 +15,6 @@ exports.fetchArticleById = async id => {
 
 exports.fetchAllArticles = async (sortBy, order) => {
   try {
-    const validColumns = [
-      "article_id",
-      "title",
-      "topic",
-      "author",
-      "created_at",
-      "votes",
-      "comment_count",
-      "article_img_url",
-    ];
-    const validOrders = ["ASC", "DESC"];
-    if (
-      !validColumns.includes(sortBy) ||
-      !validOrders.includes(order.toUpperCase())
-    ) {
-      throw new Error("invalid query parameters");
-    }
     const { rows: articles } = await db.query(
       `
         SELECT articles.*, COALESCE(SUM(comments.votes), 0)::INTEGER AS comment_count

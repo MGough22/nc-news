@@ -42,7 +42,23 @@ exports.getTopics = async (req, res, next) => {
 exports.getAllArticles = async (req, res, next) => {
   try {
     const { sort_by = "created_at", order = "DESC" } = req.query;
-    // example: GET /api/articles?sort_by=date&order=desc
+    const validColumns = [
+      "article_id",
+      "title",
+      "topic",
+      "author",
+      "created_at",
+      "votes",
+      "comment_count",
+      "article_img_url",
+    ];
+    const validOrders = ["ASC", "DESC"];
+    if (
+      !validColumns.includes(sort_by) ||
+      !validOrders.includes(order.toUpperCase())
+    ) {
+      return res.status(400).send({ msg: "Invalid query" });
+    }
     const articles = await fetchAllArticles(sort_by, order);
     res.status(200).send({ articles });
   } catch (err) {
