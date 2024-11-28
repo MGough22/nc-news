@@ -66,18 +66,19 @@ describe("Get /api/articles/:article_id", () => {
       } = await request(app).get(`/api/articles/${i}`).expect(200);
       expect(article).not.toBeNull();
       expect(article.constructor).toBe(Object);
-      expect(article.article_id).toBe(i);
-      const expectedKeys = [
-        "article_id",
-        "title",
-        "topic",
-        "author",
-        "body",
-        "created_at",
-        "votes",
-        "article_img_url",
-      ];
-      expect(Object.keys(article)).toEqual(expectedKeys);
+      expect(article).toEqual(
+        expect.objectContaining({
+          article_id: i,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
+        })
+      );
     }
   });
   test("400: Responds with an error message when given a non-numeric article_id", async () => {
@@ -379,6 +380,7 @@ describe("PATCH /api/articles/:article_id", () => {
         const {
           body: { article },
         } = await request(app).get(`/api/articles/${testArticleId}`);
+        delete article.comment_count;
         expect(updatedArticle).toEqual(article);
         startVote += testInc.inc_votes;
       }

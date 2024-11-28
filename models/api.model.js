@@ -5,9 +5,18 @@ exports.fetchTopics = async () => {
   return rows;
 };
 
+const sharedFetchArticleQueryLogic = `SELECT articles.*,
+        COUNT(comments.comment_id)::INTEGER AS comment_count
+        FROM articles
+        LEFT JOIN comments ON articles.article_id = comments.article_id`;
+
 exports.fetchArticleById = async id => {
   const { rows } = await db.query(
-    "SELECT * FROM articles WHERE article_id = $1;",
+    sharedFetchArticleQueryLogic +
+      `
+        WHERE articles.article_id = $1
+        GROUP BY articles.article_id
+      `,
     [id]
   );
   return rows[0];
@@ -16,10 +25,8 @@ exports.fetchArticleById = async id => {
 exports.fetchAllArticles = async (sortBy, order, topic) => {
   try {
     let { rows: articles } = await db.query(
-      `
-        SELECT articles.*, COALESCE(SUM(comments.votes), 0)::INTEGER AS comment_count
-        FROM articles
-        LEFT JOIN comments ON articles.article_id = comments.article_id
+      sharedFetchArticleQueryLogic +
+        `
         GROUP BY articles.article_id
         ORDER BY ${
           sortBy === "comment_count" ? "" : "articles."
