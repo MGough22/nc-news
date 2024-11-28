@@ -11,7 +11,7 @@ const {
   fetchUsers,
 } = require("../models/api.model");
 exports.getApi = (req, res) => {
-  return res.status(200).send({ endpoints: endpointsJson });
+  return res.send({ endpoints: endpointsJson });
 };
 
 exports.getArticleById = async (req, res, next) => {
@@ -24,7 +24,7 @@ exports.getArticleById = async (req, res, next) => {
     if (!article) {
       return res.status(404).send({ msg: "Article not found" });
     }
-    res.status(200).send({ article });
+    res.send({ article });
   } catch (err) {
     next(err);
   }
@@ -33,7 +33,7 @@ exports.getArticleById = async (req, res, next) => {
 exports.getTopics = async (req, res, next) => {
   try {
     const topics = await fetchTopics();
-    res.status(200).send({ topics });
+    res.send({ topics });
   } catch (err) {
     next(err);
   }
@@ -60,7 +60,7 @@ exports.getAllArticles = async (req, res, next) => {
       return res.status(400).send({ msg: "Invalid query" });
     }
     const articles = await fetchAllArticles(sort_by, order, topic);
-    res.status(200).send({ articles });
+    res.send({ articles });
   } catch (err) {
     next(err);
   }
@@ -76,7 +76,7 @@ exports.getCommentsByArticleId = async (req, res, next) => {
       return res.status(404).send({ msg: "Article not found" });
     }
     const comments = await fetchCommentsByArtId(articleId);
-    res.status(200).send({ comments });
+    res.send({ comments });
   } catch (err) {
     next(err);
   }
@@ -120,7 +120,7 @@ exports.patchVoteByArticle = async (req, res, next) => {
         .send({ msg: "Bad request: missing required fields" });
     }
     const updatedArticle = await updateVoteByArticle(req.body, articleId);
-    res.status(200).send({ updatedArticle });
+    res.send({ updatedArticle });
   } catch (err) {
     next(err);
   }
@@ -145,7 +145,7 @@ exports.deleteComment = async (req, res, next) => {
 exports.getUsers = async (req, res, next) => {
   try {
     const users = await fetchUsers();
-    res.status(200).send({ users });
+    res.send({ users });
   } catch (err) {
     next(err);
   }
