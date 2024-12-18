@@ -9,6 +9,7 @@ const {
   deleteCommentById,
   fetchCommentsByComId,
   fetchUsers,
+  fetchUserByUsername,
 } = require("../models/api.model");
 exports.getApi = (req, res) => {
   return res.send({ endpoints: endpointsJson });
@@ -146,6 +147,19 @@ exports.getUsers = async (req, res, next) => {
   try {
     const users = await fetchUsers();
     res.send({ users });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getUserByUsername = async (req, res, next) => {
+  try {
+    const { username: username } = req.params;
+    const user = await fetchUserByUsername(username);
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+    res.send({ user });
   } catch (err) {
     next(err);
   }

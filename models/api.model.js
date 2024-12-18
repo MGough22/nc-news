@@ -126,3 +126,15 @@ exports.fetchUsers = async () => {
     throw new Error("Failed to get users");
   }
 };
+
+exports.fetchUserByUsername = async username => {
+  try {
+    const { rows } = await db.query(
+      `SELECT * FROM users where username = $1;`,
+      [username]
+    );
+    return rows[0];
+  } catch (err) {
+    throw new Error("Failed to get user");
+  }
+};
